@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import ChatInterface from "@/components/ChatInterface";
 import UploadZone from "@/components/UploadZone";
 import { BookOpen, ArrowLeft, X, Layers, Plus, Trash2 } from "lucide-react";
-
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ChatPage() {
+function ChatContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -94,8 +93,6 @@ export default function ChatPage() {
                     </button>
                   </motion.div>
                 ))}
-
-
               </AnimatePresence>
               
               {files.length === 0 && (
@@ -105,11 +102,8 @@ export default function ChatPage() {
                 </div>
               )}
             </div>
-
           </div>
           
-          {/* Sidebar Bottom */}
-
           <div className="pt-6 border-t border-white/5">
             <button 
               onClick={() => setIsUploadModalOpen(true)}
@@ -170,5 +164,17 @@ export default function ChatPage() {
         )}
       </AnimatePresence>
     </main>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen w-screen bg-[#050505] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ChatContent />
+    </Suspense>
   );
 }
