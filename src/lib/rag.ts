@@ -3,8 +3,7 @@ import { QdrantVectorStore } from "@langchain/qdrant";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { OpenAI } from "openai";
 import { Document } from "@langchain/core/documents";
-// @ts-ignore
-import pdf from "pdf-parse/lib/pdf-parse.js";
+import { getDocumentProxy, extractText } from "unpdf";
 
 const embeddings = new OpenAIEmbeddings({
   model: "text-embedding-3-large",
@@ -17,6 +16,16 @@ const qdrantConfig = {
   collectionName: process.env.QDRANT_COLLECTION_NAME || "notebook-lm-v2",
 };
 
+/**
+ * Extracts text from a PDF buffer using unpdf
+ * unpdf is a modern, worker-free wrapper around pdf.js
+ */
+async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const { text } = await extractText(pdf);
+  return Array.isArray(text) ? text.join("\n") : text;
+}
+
 export async function indexDocument(file: Blob, fileName: string) {
   console.log(`[Indexing] Starting indexing for: ${fileName}`);
   
@@ -24,12 +33,9 @@ export async function indexDocument(file: Blob, fileName: string) {
 
   try {
     if (fileName.toLowerCase().endsWith(".pdf")) {
-      console.log("[Indexing] Parsing PDF with Bulletproof pdf-parse...");
+      console.log("[Indexing] Parsing PDF with unpdf...");
       const buffer = Buffer.from(await file.arrayBuffer());
-      
-      // pdf-parse is much more stable than pdfjs-dist for simple text extraction
-      const data = await pdf(buffer);
-      const text = data.text;
+      const text = await extractTextFromPDF(buffer);
       
       docs = [new Document({ 
         pageContent: text, 
