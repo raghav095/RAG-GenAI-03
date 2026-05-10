@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "mkdir -p node_modules/pdf-parse/test/data && touch node_modules/pdf-parse/test/data/05-versions-space.pdf"
   },
   "dependencies": {
     "@langchain/community": "^1.1.28",

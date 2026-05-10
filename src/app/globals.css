@@ -5,8 +5,8 @@
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
-  --accent: #7c3aed;
-  --accent-muted: rgba(124, 58, 237, 0.1);
+  --accent: #10b981;
+  --accent-muted: rgba(16, 185, 129, 0.1);
   --border: #262626;
   --card: #141414;
 }
@@ -54,7 +54,7 @@ body {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
