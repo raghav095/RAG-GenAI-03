@@ -20,13 +20,9 @@ const features = [
     icon: <MessageSquare className="w-5 h-5 text-blue-400" />,
     title: "Natural Chat",
     desc: "Ask questions just like you're talking to an expert."
-  },
-  {
-    icon: <Shield className="w-5 h-5 text-green-400" />,
-    title: "Privacy First",
-    desc: "Your documents are processed securely and privately."
   }
 ];
+
 
 export default function Home() {
   const router = useRouter();
