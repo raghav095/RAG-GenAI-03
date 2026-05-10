@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, User, Bot, Loader2 } from "lucide-react";
+import { Send, User, Bot, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -16,6 +16,7 @@ function cn(...inputs: ClassValue[]) {
 interface Message {
   role: "user" | "bot";
   content: string;
+  isTyping?: boolean;
 }
 
 export default function ChatInterface() {
@@ -31,6 +32,34 @@ export default function ChatInterface() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const typeMessage = async (fullText: string) => {
+    const botMessage: Message = { role: "bot", content: "", isTyping: true };
+    setMessages((prev) => [...prev, botMessage]);
+
+    let currentText = "";
+    const speed = 15; // ms per character
+
+    for (let i = 0; i < fullText.length; i++) {
+      currentText += fullText[i];
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last && last.role === "bot" && last.isTyping) {
+          return [...prev.slice(0, -1), { ...last, content: currentText }];
+        }
+        return prev;
+      });
+      await new Promise((resolve) => setTimeout(resolve, speed));
+    }
+
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.role === "bot" && last.isTyping) {
+        return [...prev.slice(0, -1), { ...last, isTyping: false }];
+      }
+      return prev;
+    });
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -48,11 +77,7 @@ export default function ChatInterface() {
       });
 
       const data = await res.json();
-      const botMessage: Message = {
-        role: "bot",
-        content: data.answer || "Sorry, I couldn't process that.",
-      };
-      setMessages((prev) => [...prev, botMessage]);
+      await typeMessage(data.answer || "Sorry, I couldn't process that.");
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
@@ -66,10 +91,6 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full w-full glass rounded-t-[2.5rem] rounded-b-none overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative">
-
-
-
-
       {/* Header */}
       <div className="p-5 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-xl shrink-0">
         <div className="flex items-center gap-3">
@@ -136,6 +157,9 @@ export default function ChatInterface() {
                     >
                       {msg.content}
                     </ReactMarkdown>
+                    {msg.isTyping && (
+                      <span className="inline-block w-1 h-5 bg-accent ml-1 animate-pulse align-middle" />
+                    )}
                   </div>
                 ) : (
                   msg.content
@@ -143,7 +167,7 @@ export default function ChatInterface() {
               </div>
             </motion.div>
           ))}
-          {isLoading && (
+          {isLoading && !messages.some(m => m.isTyping) && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -73,13 +73,13 @@ export default function ChatPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="p-3 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all group relative"
+                    className="p-3 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all flex items-center justify-between gap-2 group"
                   >
-                    <div className="flex items-center gap-3 pr-8">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center border border-accent/20 shrink-0">
                         <BookOpen className="w-4 h-4 text-accent" />
                       </div>
-                      <div className="overflow-hidden">
+                      <div className="min-w-0 flex-1">
                         <p className="text-[11px] font-bold truncate text-white/80">{file}</p>
                         <p className="text-[9px] text-green-500/50 font-bold">READY</p>
                       </div>
@@ -87,13 +87,14 @@ export default function ChatPage() {
                     
                     <button
                       onClick={() => setFiles(prev => prev.filter(f => f !== file))}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-white/0 hover:bg-red-500/10 text-white/0 group-hover:text-red-500/40 hover:text-red-500 transition-all"
+                      className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/20 hover:text-red-500 transition-all shrink-0"
                       title="Remove source"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </motion.div>
                 ))}
+
 
               </AnimatePresence>
               
