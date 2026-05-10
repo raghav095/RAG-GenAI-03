@@ -19,7 +19,7 @@ interface Message {
   isTyping?: boolean;
 }
 
-export default function ChatInterface() {
+export default function ChatInterface({ activeFiles = [] }: { activeFiles?: string[] }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +73,10 @@ export default function ChatInterface() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ 
+          message: input,
+          activeFiles: activeFiles 
+        }),
       });
 
       const data = await res.json();
@@ -88,6 +91,7 @@ export default function ChatInterface() {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="flex flex-col h-full w-full glass rounded-t-[2.5rem] rounded-b-none overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative">

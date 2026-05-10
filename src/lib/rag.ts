@@ -85,13 +85,26 @@ export async function indexDocument(file: Blob, fileName: string) {
   }
 }
 
-export async function queryDocument(userQuery: string) {
+export async function queryDocument(userQuery: string, activeFiles: string[] = []) {
   try {
-    console.log(`[Query] User query: ${userQuery}`);
+    console.log(`[Query] User query: ${userQuery} | Active Files: ${activeFiles.join(", ")}`);
     const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, qdrantConfig);
     
+    // Create a filter to only search within the active files
+    const filter = activeFiles.length > 0 ? {
+      must: [
+        {
+          key: "metadata.fileName",
+          match: {
+            any: activeFiles,
+          },
+        },
+      ],
+    } : undefined;
+
     const retriever = vectorStore.asRetriever({
       k: 5,
+      filter: filter,
     });
 
     const relevantChunks = await retriever.invoke(userQuery);
@@ -102,8 +115,9 @@ export async function queryDocument(userQuery: string) {
     });
 
     const context = relevantChunks
-      .map((chunk) => `[Content]: ${chunk.pageContent}\n[Metadata]: ${JSON.stringify(chunk.metadata)}`)
+      .map((chunk) => `[Source: ${chunk.metadata.fileName}]: ${chunk.pageContent}`)
       .join("\n\n");
+
 
     const systemPrompt = `You are an AI Assistant specializing in document analysis.
 Your goal is to answer the user's question based ONLY on the provided context.

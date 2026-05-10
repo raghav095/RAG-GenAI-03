@@ -13,13 +13,35 @@ function ChatContent() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [files, setFiles] = useState<string[]>([]);
 
-  // Initialize with the file from URL
+  // 1. Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("notebook_files");
+    if (saved) {
+      try {
+        setFiles(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to load saved files", e);
+      }
+    }
+  }, []);
+
+  // 2. Handle initial file from URL and save to localStorage
   useEffect(() => {
     const initialFile = searchParams.get("file");
     if (initialFile && !files.includes(initialFile)) {
-      setFiles([initialFile]);
+      const newFiles = [initialFile, ...files.filter(f => f !== initialFile)];
+      setFiles(newFiles);
+      localStorage.setItem("notebook_files", JSON.stringify(newFiles));
     }
   }, [searchParams]);
+
+  // 3. Save to localStorage whenever files change
+  useEffect(() => {
+    if (files.length > 0) {
+      localStorage.setItem("notebook_files", JSON.stringify(files));
+    }
+  }, [files]);
+
 
   const handleUploadSuccess = (fileName: string) => {
     if (!files.includes(fileName)) {
@@ -85,12 +107,17 @@ function ChatContent() {
                     </div>
                     
                     <button
-                      onClick={() => setFiles(prev => prev.filter(f => f !== file))}
+                      onClick={() => {
+                        const nextFiles = files.filter(f => f !== file);
+                        setFiles(nextFiles);
+                        localStorage.setItem("notebook_files", JSON.stringify(nextFiles));
+                      }}
                       className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-white/20 hover:text-red-500 transition-all shrink-0"
                       title="Remove source"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
+
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -122,8 +149,9 @@ function ChatContent() {
         animate={{ opacity: 1, y: 0 }}
         className="fixed inset-y-0 left-80 right-0 z-20 px-4 pt-6 pb-0"
       >
-        <ChatInterface />
+        <ChatInterface activeFiles={files} />
       </motion.div>
+
 
       {/* UPLOAD MODAL OVERLAY */}
       <AnimatePresence>
