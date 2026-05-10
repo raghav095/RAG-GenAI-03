@@ -3,8 +3,11 @@ import { QdrantVectorStore } from "@langchain/qdrant";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { OpenAI } from "openai";
 import { Document } from "@langchain/core/documents";
-// @ts-ignore
-import pdf from "pdf-parse";
+import * as pdfjs from "pdfjs-dist";
+
+// Initialize PDF.js worker
+// In a server environment, we don't need a worker path if we use the standard build
+// However, pdfjs-dist can be tricky. Let's use a robust approach for Vercel.
 
 const embeddings = new OpenAIEmbeddings({
   model: "text-embedding-3-large",
@@ -17,6 +20,25 @@ const qdrantConfig = {
   collectionName: process.env.QDRANT_COLLECTION_NAME || "notebook-lm-v2",
 };
 
+/**
+ * Extracts text from a PDF buffer using pdfjs-dist
+ */
+async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  const data = new Uint8Array(buffer);
+  const loadingTask = pdfjs.getDocument({ data });
+  const pdfDocument = await loadingTask.promise;
+  let fullText = "";
+
+  for (let i = 1; i <= pdfDocument.numPages; i++) {
+    const page = await pdfDocument.getPage(i);
+    const content = await page.getTextContent();
+    const strings = content.items.map((item: any) => item.str);
+    fullText += strings.join(" ") + "\n";
+  }
+
+  return fullText;
+}
+
 export async function indexDocument(file: Blob, fileName: string) {
   console.log(`[Indexing] Starting indexing for: ${fileName}`);
   
@@ -24,11 +46,9 @@ export async function indexDocument(file: Blob, fileName: string) {
 
   try {
     if (fileName.toLowerCase().endsWith(".pdf")) {
-      console.log("[Indexing] Parsing PDF with patched pdf-parse...");
+      console.log("[Indexing] Parsing PDF with pdfjs-dist...");
       const buffer = Buffer.from(await file.arrayBuffer());
-      
-      const data = await pdf(buffer);
-      const text = data.text;
+      const text = await extractTextFromPDF(buffer);
       
       docs = [new Document({ 
         pageContent: text, 
