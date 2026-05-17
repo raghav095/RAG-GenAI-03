@@ -1,7 +1,7 @@
 # NotebookLM RAG Clone - Documentation
 
 ## Overview
-This application is a high-fidelity clone of Google NotebookLM's core functionality. It allows users to upload documents (PDF or Text) and have a natural language conversation grounded in the document's content.
+This application is a high-fidelity clone of Google NotebookLM's core functionality. It allows users to upload documents (PDF, Text, or CSV) and have a natural language conversation grounded in the document's content.
 
 ## Technical Stack
 - **Frontend**: Next.js (App Router), Tailwind CSS, Framer Motion, Lucide React.

@@ -1,6 +1,6 @@
 # 📓 NotebookLM RAG Clone
 
-A premium, RAG-powered document assistant that lets you "talk" to your PDFs and text files.
+A premium, RAG-powered document assistant that lets you "talk" to your PDFs, CSVs, and text files.
 
 ![Premium UI](https://img.shields.io/badge/UI-Premium-blueviolet)
 ![Next.js](https://img.shields.io/badge/Framework-Next.js%2014-black)

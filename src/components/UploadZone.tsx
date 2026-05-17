@@ -101,7 +101,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
               <input
                 type="file"
                 className="hidden"
-                accept=".pdf,.txt"
+                accept=".pdf,.txt,.csv"
                 onChange={onFileChange}
                 disabled={isUploading}
               />
@@ -128,7 +128,7 @@ export default function UploadZone({ onUploadSuccess }: UploadZoneProps) {
                 <p className="text-white/20 text-[11px] font-medium tracking-tight">
                   {isUploading 
                     ? "Indexing your document." 
-                    : "Drop your PDF or TXT here."}
+                    : "Drop your PDF, TXT, or CSV here."}
                 </p>
               </div>
 
